@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Lexium Cobot L03S – URDF/Xacro description
+  Originally exported from SolidWorks (sw_urdf_exporter 1.6.0-4-g7f85cfe).
+  Migrated to ROS 2 / xacro format.
+
+  Package layout assumed:
+    lexium_cobot_l03s/
+      urdf/
+        lexium_cobot_l03s.urdf.xacro   ← this file
+      meshes/
+        base_link.STL
+        Link_1.STL  …  Link_6.STL
+-->
+<robot name="lexium_cobot_l03s" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROPERTIES
+  ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Package name used in mesh URIs -->
+  <xacro:property name="pkg"          value="lexium_cobot_l03s" />
+
+  <!-- Schneider Electric brand colour (steel blue) -->
+  <xacro:property name="body_color"   value="0.79216 0.81961 0.93333 1.0" />
+
+  <!-- Joint limits – the SolidWorks exporter sets 0 / 0 as placeholders.
+       Replace these with the real values from the datasheet when available. -->
+  <xacro:property name="joint_effort"   value="30.0"   />   <!-- N·m  -->
+  <xacro:property name="joint_velocity" value="3.14"   />   <!-- rad/s -->
+  <xacro:property name="j1_lower"  value="${-pi}"      />
+  <xacro:property name="j1_upper"  value="${pi}"       />
+  <xacro:property name="j2_lower"  value="${-pi/2}"    />
+  <xacro:property name="j2_upper"  value="${pi/2}"     />
+  <xacro:property name="j3_lower"  value="${-pi}"      />
+  <xacro:property name="j3_upper"  value="${pi}"       />
+  <xacro:property name="j4_lower"  value="${-pi}"      />
+  <xacro:property name="j4_upper"  value="${pi}"       />
+  <xacro:property name="j5_lower"  value="${-pi/2}"    />
+  <xacro:property name="j5_upper"  value="${pi/2}"     />
+  <xacro:property name="j6_lower"  value="${-pi}"      />
+  <xacro:property name="j6_upper"  value="${pi}"       />
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MATERIALS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <material name="lexium_body">
+    <color rgba="${body_color}" />
+  </material>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MACROS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Convenience macro: visual + collision sharing the same mesh -->
+  <xacro:macro name="mesh_geometry" params="link_name">
+    <geometry>
+      <mesh filename="package://${pkg}/meshes/${link_name}.STL" />
+    </geometry>
+  </xacro:macro>
+
+  <!-- Full link with inertia, visual and collision -->
+  <xacro:macro name="robot_link"
+               params="name
+                       mass
+                       ixx ixy ixz iyy iyz izz
+                       com_xyz com_rpy">
+    <link name="${name}">
+      <inertial>
+        <origin xyz="${com_xyz}" rpy="${com_rpy}" />
+        <mass value="${mass}" />
+        <inertia
+          ixx="${ixx}" ixy="${ixy}" ixz="${ixz}"
+          iyy="${iyy}" iyz="${iyz}" izz="${izz}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <xacro:mesh_geometry link_name="${name}" />
+        <material name="lexium_body" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <xacro:mesh_geometry link_name="${name}" />
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <!-- Revolute joint macro -->
+  <xacro:macro name="revolute_joint"
+               params="name parent child
+                       origin_xyz origin_rpy
+                       axis_xyz
+                       lower upper">
+    <joint name="${name}" type="revolute">
+      <origin xyz="${origin_xyz}" rpy="${origin_rpy}" />
+      <parent link="${parent}" />
+      <child  link="${child}"  />
+      <axis   xyz="${axis_xyz}" />
+      <limit
+        lower="${lower}"
+        upper="${upper}"
+        effort="${joint_effort}"
+        velocity="${joint_velocity}" />
+      <dynamics damping="0.1" friction="0.0" />
+    </joint>
+  </xacro:macro>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LINKS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <xacro:robot_link
+    name="base_link"
+    mass="0.46037"
+    com_xyz="-1.7899e-05 -0.001539  0.051105"
+    com_rpy="0 0 0"
+    ixx="6.4298e-04"  ixy=" 9.2218e-08"  ixz="-3.7543e-07"
+    iyy="6.3423e-04"  iyz="-1.0799e-05"  izz="8.2228e-04" />
+
+  <xacro:robot_link
+    name="Link_1"
+    mass="0.88431"
+    com_xyz=" 0.0010686  0.0030801  0.061147"
+    com_rpy="0 0 0"
+    ixx="1.5597e-03"  ixy="-1.8190e-05"  ixz="-2.9164e-06"
+    iyy="1.5135e-03"  iyz="-8.4142e-06"  izz="1.0538e-03" />
+
+  <xacro:robot_link
+    name="Link_2"
+    mass="2.3218"
+    com_xyz=" 0.10898  -0.033523   0.061158"
+    com_rpy="0 0 0"
+    ixx="3.3716e-03"  ixy=" 3.6944e-04"  ixz=" 3.2229e-06"
+    iyy="4.4589e-03"  iyz="-9.8419e-07"  izz="3.5131e-03" />
+
+  <xacro:robot_link
+    name="Link_3"
+    mass="1.2033"
+    com_xyz="-0.065507  0.11608    0.040933"
+    com_rpy="0 0 0"
+    ixx="3.1587e-03"  ixy=" 1.2532e-03"  ixz=" 1.6546e-04"
+    iyy="1.6453e-03"  iyz="-2.9320e-04"  izz="3.6224e-03" />
+
+  <xacro:robot_link
+    name="Link_4"
+    mass="0.4932"
+    com_xyz="-0.0034014 -0.013679   0.038407"
+    com_rpy="0 0 0"
+    ixx="4.9123e-04"  ixy="-4.1559e-05"  ixz=" 1.4987e-05"
+    iyy="3.3440e-04"  iyz=" 6.0318e-05"  izz="4.7904e-04" />
+
+  <xacro:robot_link
+    name="Link_5"
+    mass="0.55157"
+    com_xyz="-0.0053242 -0.0041798  0.038595"
+    com_rpy="0 0 0"
+    ixx="6.0841e-04"  ixy="-3.1575e-04"  ixz=" 1.3020e-05"
+    iyy="7.6259e-04"  iyz=" 1.0237e-05"  izz="9.8198e-04" />
+
+  <xacro:robot_link
+    name="Link_6"
+    mass="0.095133"
+    com_xyz=" 3.8151e-05 -3.8288e-05  0.013411"
+    com_rpy="0 0 0"
+    ixx="3.3473e-05"  ixy=" 1.1935e-07"  ixz="-5.0139e-09"
+    iyy="3.3800e-05"  iyz=" 9.4323e-08"  izz="5.5197e-05" />
+
+  <!-- ═══════════════════════════════════════════════════════════
+       JOINTS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <xacro:revolute_joint
+    name="Joint_1"
+    parent="base_link"    child="Link_1"
+    origin_xyz="0 0 0.08605"
+    origin_rpy="0 0 0"
+    axis_xyz="0 0 1"
+    lower="${j1_lower}"   upper="${j1_upper}" />
+
+  <xacro:revolute_joint
+    name="Joint_2"
+    parent="Link_1"       child="Link_2"
+    origin_xyz="0.016544 0.047713 0.0645"
+    origin_rpy="1.5708 0 2.8078"
+    axis_xyz="0 0 1"
+    lower="${j2_lower}"   upper="${j2_upper}" />
+
+  <xacro:revolute_joint
+    name="Joint_3"
+    parent="Link_2"       child="Link_3"
+    origin_xyz="0.23513 -0.072328 -0.0035"
+    origin_rpy="${pi} 0 ${pi}"
+    axis_xyz="0 0 -1"
+    lower="${j3_lower}"   upper="${j3_upper}" />
+
+  <xacro:revolute_joint
+    name="Joint_4"
+    parent="Link_3"       child="Link_4"
+    origin_xyz="-0.11206 0.19856 -0.0245"
+    origin_rpy="${-pi} 0 0"
+    axis_xyz="0 0 -1"
+    lower="${j4_lower}"   upper="${j4_upper}" />
+
+  <xacro:revolute_joint
+    name="Joint_5"
+    parent="Link_4"       child="Link_5"
+    origin_xyz="-0.018336 -0.073755 0.0415"
+    origin_rpy="-1.5708 0.34315 2.8979"
+    axis_xyz="0 0 -1"
+    lower="${j5_lower}"   upper="${j5_upper}" />
+
+  <xacro:revolute_joint
+    name="Joint_6"
+    parent="Link_5"       child="Link_6"
+    origin_xyz="-0.059775 -0.046936 0.0415"
+    origin_rpy="-1.5708 0.36234 2.2365"
+    axis_xyz="0 0 -1"
+    lower="${j6_lower}"   upper="${j6_upper}" />
+
+</robot>
